@@ -1,5 +1,5 @@
 <?php
-header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Origin: http://localhost:8101");
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
@@ -7,41 +7,31 @@ header("Content-Type: application/json");
 
 require("db_connect.php");
 
-try {
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $data = json_decode(file_get_contents("php://input"));
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST["detalles"]) && isset($_POST["fecha"]) && isset($_POST["correoDestino"])) {
+        try {
+            $detalles = $_POST["detalles"];
+            $fecha = $_POST["fecha"];
+            $correoDestino = $_POST["correoDestino"];
 
-        if (isset($data->usuario)) {
-            $correo_usuario = $data->usuario->correo;
+            $stmt = $conn->prepare("INSERT INTO solicitudes_intercambio (detalles, fecha, correo_destino) VALUES (:detalles, :fecha, :correoDestino)");
 
-            $asunto = "Solicitud de intercambio recibida";
-            $mensaje = "Hola,\n\nHas recibido una solicitud de intercambio de habilidades. Por favor, revisa tu cuenta para más detalles.";
-            mail($correo_usuario, $asunto, $mensaje);
-
-            $stmt = $conn->prepare("INSERT INTO solicitudes (nombre_usuario, edad_usuario, ubicacion_usuario, correo_solicitante, fecha_solicitud) 
-                                    VALUES (:nombre, :edad, :ubicacion, :correo_solicitante, NOW())");
-
-            $stmt->bindParam(':nombre', $data->usuario->nombre);
-            $stmt->bindParam(':edad', $data->usuario->edad);
-            $stmt->bindParam(':ubicacion', $data->usuario->ubicacion);
-            $stmt->bindParam(':correo_solicitante', $data->solicitante->correo);
+            $stmt->bindParam(':detalles', $detalles);
+            $stmt->bindParam(':fecha', $fecha);
+            $stmt->bindParam(':correoDestino', $correoDestino);
 
             $stmt->execute();
 
-            http_response_code(200);
-            echo json_encode(array("message" => "Solicitud enviada correctamente a $correo_usuario y guardada en la base de datos."));
-        } else {
-            http_response_code(400);
-            echo json_encode(array("message" => "Datos incompletos. No se proporcionó el usuario."));
+            echo json_encode(array("message" => "Solicitud de intercambio enviada con éxito"));
+        } catch(PDOException $e) {
+            echo json_encode(array("error" => "Error al enviar la solicitud: " . $e->getMessage()));
         }
-    } else {
-        http_response_code(405);
-        echo json_encode(array("message" => "Método no permitido. Se esperaba una solicitud POST."));
-    }
-} catch(PDOException $e) {
-    http_response_code(500);
-    echo json_encode(array("message" => "Error al conectar a la base de datos: " . $e->getMessage()));
-}
 
-$conn = null;
+        $conn = null;
+    } else {
+        echo json_encode(array("error" => "Error: Datos incompletos en la solicitud"));
+    }
+} else {
+    echo json_encode(array("error" => "Error: Esta página solo acepta solicitudes POST"));
+}
 ?>
