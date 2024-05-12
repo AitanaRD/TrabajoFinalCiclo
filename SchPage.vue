@@ -35,7 +35,7 @@
               <p>Edad: {{ usuario.edad }}</p>
               <p>Ubicación: {{ usuario.ubicacion }}</p>
               <p>Correo: {{ usuario.correo }}</p>
-              <ion-button @click="enviarCorreo(usuario.correo)" fill="clear">
+              <ion-button @click="abrirModal(usuario.correo)" fill="clear">
                 <ion-icon :icon="mailOutline"></ion-icon>
               </ion-button>
             </ion-item>
@@ -78,7 +78,7 @@
               <p>Edad: {{ usuario.edad }}</p>
               <p>Ubicación: {{ usuario.ubicacion }}</p>
               <p>Correo: {{ usuario.correo }}</p>
-              <ion-button @click="enviarCorreo(usuario.correo)" fill="clear">
+              <ion-button @click="abrirModal(usuario.correo)" fill="clear">
                 <ion-icon :icon="mailOutline"></ion-icon>
               </ion-button>
             </ion-item>
@@ -90,9 +90,35 @@
           </p>
         </div>
       </div>
+
+      <!-- Componente Modal para el formulario de solicitud -->
+      <ion-modal :is-open="mostrarModal" @closed="cerrarModal()">
+        <ion-header>
+          <ion-toolbar color="secondary">
+            <ion-buttons>
+              <ion-button @click="cerrarModal()">
+                <ion-icon :icon="close"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+            <ion-title>Enviar Solicitud de Intercambio</ion-title>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content>
+          <ion-item>
+            <ion-label position="stacked">Detalles</ion-label>
+            <ion-textarea v-model="detalles" :rows=4></ion-textarea>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Fecha</ion-label>
+            <ion-datetime v-model="fecha" display-format="D MMM YYYY" min="2000-01-01" max="2030-12-31"></ion-datetime>
+          </ion-item>
+          <ion-button @click="enviarSolicitud()" expand="block" color="tertiary">Enviar</ion-button>
+        </ion-content>
+      </ion-modal>
     </ion-content>
   </ion-page>
 </template>
+
 
 <script lang="ts">
 import {
@@ -110,6 +136,9 @@ import {
   IonIcon,
   IonChip,
   IonBackButton,
+  IonModal,
+  IonTextarea,
+  IonDatetime,
   IonToolbar
 } from "@ionic/vue";
 import { defineComponent } from "vue";
@@ -125,6 +154,7 @@ import {
   fitness,
   heart,
   language,
+  close,
   mailOutline,
   sendOutline
 } from "ionicons/icons";
@@ -161,12 +191,16 @@ export default defineComponent({
     IonIcon,
     IonChip,
     IonBackButton,
-    IonToolbar,
+    IonModal,
+    IonTextarea,
+    IonDatetime,
+    IonToolbar
   },
   setup() {
     return {
       mailOutline,
-      sendOutline
+      sendOutline,
+      close
     };
   },
   data() {
@@ -213,6 +247,10 @@ export default defineComponent({
         "Desarrollo personal y bienestar emocional": "danger",
         Idiomas: "primary",
       } as Colores,
+      mostrarModal: false,
+      detalles: "",
+      fecha: "",
+      correoDestino: "",
     };
   },
   methods: {
@@ -259,12 +297,33 @@ export default defineComponent({
           });
       }
     },
-    enviarCorreo(correo: string) {
-      console.log("Enviando correo a:", correo);
-      window.open(`mailto:${correo}`, "_system");
+    abrirModal(correoDestino: string) {
+      this.correoDestino = correoDestino;
+      this.mostrarModal = true;
+    },
+    cerrarModal() {
+      this.mostrarModal = false;
+    },
+    enviarSolicitud() {
+    const solicitud = {
+    detalles: this.detalles,
+    fecha: this.fecha.split('T')[0],
+    correoDestino: this.correoDestino
+  };
+  axios.post('http://localhost/proyecto_final/enviar_solicitud.php', solicitud)
+    .then(response => {
+      console.log(response.data);
+    })
+    .catch(error => {
+      console.error('Error al enviar la solicitud:', error);
+    })
+    .finally(() => {
+      this.cerrarModal();
+    });
     }
   }
-});
+}
+);
 </script>
 
 <style scoped>
