@@ -1,0 +1,7 @@
+{
+  "name": "ionicloginsignup02",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
