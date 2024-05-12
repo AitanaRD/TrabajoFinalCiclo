@@ -99,18 +99,18 @@
               <ion-button @click="cerrarModal()">
                 <ion-icon :icon="close"></ion-icon>
               </ion-button>
+              <ion-title>Solicitud de Intercambio</ion-title>
             </ion-buttons>
-            <ion-title>Enviar Solicitud de Intercambio</ion-title>
           </ion-toolbar>
         </ion-header>
         <ion-content>
           <ion-item>
             <ion-label position="stacked">Detalles</ion-label>
-            <ion-textarea v-model="detalles" :rows=4></ion-textarea>
+            <ion-textarea v-model="detalles" :rows= 3></ion-textarea>
           </ion-item>
           <ion-item>
             <ion-label position="stacked">Fecha</ion-label>
-            <ion-datetime v-model="fecha" display-format="D MMM YYYY" min="2000-01-01" max="2030-12-31"></ion-datetime>
+            <ion-datetime v-model="fecha" display-format="YYYY-MM-DD" min="2020-01-01" max="2030-12-31"></ion-datetime>
           </ion-item>
           <ion-button @click="enviarSolicitud()" expand="block" color="tertiary">Enviar</ion-button>
         </ion-content>
@@ -248,9 +248,9 @@ export default defineComponent({
         Idiomas: "primary",
       } as Colores,
       mostrarModal: false,
+      correoDestino: "",
       detalles: "",
       fecha: "",
-      correoDestino: "",
     };
   },
   methods: {
@@ -306,20 +306,24 @@ export default defineComponent({
     },
     enviarSolicitud() {
     const solicitud = {
+    correoDestino: this.correoDestino,
     detalles: this.detalles,
     fecha: this.fecha.split('T')[0],
-    correoDestino: this.correoDestino
   };
   axios.post('http://localhost/proyecto_final/enviar_solicitud.php', solicitud)
-    .then(response => {
-      console.log(response.data);
-    })
-    .catch(error => {
-      console.error('Error al enviar la solicitud:', error);
-    })
-    .finally(() => {
-      this.cerrarModal();
-    });
+  .then(response => {
+    if (response.data.message) {
+      console.log(response.data.message);
+    } else {
+      console.error('Error al enviar la solicitud:', response.data.error);
+    }
+  })
+  .catch(error => {
+    console.error('Error al enviar la solicitud:', error);
+  })
+  .finally(() => {
+    this.cerrarModal();
+  });
     }
   }
 }

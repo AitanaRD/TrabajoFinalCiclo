@@ -8,17 +8,17 @@ header("Content-Type: application/json");
 require("db_connect.php");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST["detalles"]) && isset($_POST["fecha"]) && isset($_POST["correoDestino"])) {
+    if (isset($_POST["correoDestino"]) && isset($_POST["detalles"]) && isset($_POST["fecha"])) {
         try {
+            $correoDestino = $_POST["correoDestino"];
             $detalles = $_POST["detalles"];
             $fecha = $_POST["fecha"];
-            $correoDestino = $_POST["correoDestino"];
 
-            $stmt = $conn->prepare("INSERT INTO solicitudes_intercambio (detalles, fecha, correo_destino) VALUES (:detalles, :fecha, :correoDestino)");
+            $stmt = $conn->prepare("INSERT INTO solicitudes_intercambio (correo_destino, detalles, fecha) VALUES (:correoDestino, :detalles, :fecha)");
 
+            $stmt->bindParam(':correoDestino', $correoDestino);
             $stmt->bindParam(':detalles', $detalles);
             $stmt->bindParam(':fecha', $fecha);
-            $stmt->bindParam(':correoDestino', $correoDestino);
 
             $stmt->execute();
 
@@ -29,9 +29,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $conn = null;
     } else {
-        echo json_encode(array("error" => "Error: Datos incompletos en la solicitud"));
+        echo json_encode(array("error" => "Error: datos incompletos en la solicitud"));
     }
 } else {
-    echo json_encode(array("error" => "Error: Esta página solo acepta solicitudes POST"));
+
+    echo json_encode(array("error" => "Error: esta página solo acepta solicitudes POST"));
 }
-?>

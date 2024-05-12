@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 12-05-2024 a las 01:51:06
+-- Tiempo de generación: 12-05-2024 a las 23:19:34
 -- Versión del servidor: 10.4.25-MariaDB
 -- Versión de PHP: 7.4.30
 
@@ -111,16 +111,14 @@ CREATE TABLE `mensajes` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `solicitudes`
+-- Estructura de tabla para la tabla `solicitudes_intercambio`
 --
 
-CREATE TABLE `solicitudes` (
+CREATE TABLE `solicitudes_intercambio` (
   `id` int(11) NOT NULL,
-  `nombre_usuario` varchar(255) NOT NULL,
-  `edad_usuario` varchar(50) DEFAULT NULL,
-  `ubicacion_usuario` varchar(255) DEFAULT NULL,
-  `correo_solicitante` varchar(255) NOT NULL,
-  `fecha_solicitud` timestamp NOT NULL DEFAULT current_timestamp()
+  `correo_destino` varchar(200) NOT NULL,
+  `detalles` text DEFAULT NULL,
+  `fecha` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -203,9 +201,9 @@ ALTER TABLE `mensajes`
   ADD KEY `receptor` (`receptor`);
 
 --
--- Indices de la tabla `solicitudes`
+-- Indices de la tabla `solicitudes_intercambio`
 --
-ALTER TABLE `solicitudes`
+ALTER TABLE `solicitudes_intercambio`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -252,9 +250,9 @@ ALTER TABLE `mensajes`
   MODIFY `mensaje_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `solicitudes`
+-- AUTO_INCREMENT de la tabla `solicitudes_intercambio`
 --
-ALTER TABLE `solicitudes`
+ALTER TABLE `solicitudes_intercambio`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
