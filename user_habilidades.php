@@ -9,7 +9,7 @@ $usuario_id = $_COOKIE['usuario_id'];
 
 require("db_connect.php");
 
-$sql = "SELECT habilidades.habilidad_id, habilidades.nombreHabilidad, habilidades.descripcion, habilidades.categoria, habilidades.tipoIntercambio
+$sql = "SELECT habilidades.habilidad_id, habilidades.nombreHabilidad, habilidades.descripcion, habilidades.categoria, habilidades.nivel
         FROM habilidades 
         INNER JOIN habilidad_usuario ON habilidades.habilidad_id = habilidad_usuario.habilidad_id 
         WHERE habilidad_usuario.usuario_id = ?";

@@ -10,17 +10,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $request_data = json_decode($data, true);
 
-    if(isset($_COOKIE['usuario_id'], $request_data['nombreHabilidad'], $request_data['descripcion'], $request_data['categoria'], $request_data['tipoIntercambio'])) {
+    if(isset($_COOKIE['usuario_id'], $request_data['nombreHabilidad'], $request_data['descripcion'], $request_data['categoria'], $request_data['nivel'])) {
         $user_id = $_COOKIE['usuario_id'];
         $nombreHabilidad = htmlspecialchars($request_data['nombreHabilidad']);
         $descripcion = htmlspecialchars($request_data['descripcion']);
         $categoria = htmlspecialchars($request_data['categoria']);
-        $tipoIntercambio = htmlspecialchars($request_data['tipoIntercambio']);
+        $nivel = htmlspecialchars($request_data['nivel']);
 
         require("db_connect.php");
 
-        $stmt = $conn->prepare("INSERT INTO habilidades (nombreHabilidad, descripcion, categoria, tipoIntercambio) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$nombreHabilidad, $descripcion, $categoria, $tipoIntercambio]);
+        $stmt = $conn->prepare("INSERT INTO habilidades (nombreHabilidad, descripcion, categoria, nivel) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$nombreHabilidad, $descripcion, $categoria, $nivel]);
 
         if ($stmt->rowCount() > 0) {
             $habilidad_id = $conn->lastInsertId();
