@@ -14,7 +14,7 @@
       </ion-header>
 
       <div class="chip-container">
-        <ion-chip @click="irABuscarUsuarios" class="search-chip" color="secondary">
+        <ion-chip @click="irABuscarUsuarios" class="search-chip" color="medium">
           <ion-icon :icon="search"></ion-icon>
           <ion-label>Buscar usuarios</ion-label>
         </ion-chip>
@@ -23,9 +23,7 @@
         <div class="user-info">
           <ion-card>
             <ion-card-header>
-              <ion-card-title color="secondary">{{
-                userData.nombre
-              }}</ion-card-title>
+              <ion-card-title><strong>{{ userData.nombre }}</strong></ion-card-title>
             </ion-card-header>
             <ion-card-content>
               <p><strong>Edad:</strong> {{ userData.edad }}</p>
@@ -36,44 +34,57 @@
         </div>
 
         <h3 class="section-title">Mis habilidades</h3>
-        <ion-list lines="full">
-          <ion-item v-for="(habilidad, index) in habilidades" :key="index" class="skill-item">
-            <ion-label>{{ habilidad.nombreHabilidad }} - {{ habilidad.descripcion }} -
-              {{ habilidad.categoria }} -
-              {{ habilidad.tipoIntercambio }}</ion-label>
-            <ion-button @click="eliminarHabilidad(index)" fill="clear" color="danger">Eliminar</ion-button>
-          </ion-item>
-        </ion-list>
+        <div v-for="(habilidad, index) in habilidades" :key="index" class="habilidad-card">
+          <ion-card>
+            <ion-card-header>
+              <div class="card-header-content">
+                <ion-card-title>{{ habilidad.nombreHabilidad }}</ion-card-title>
+                <ion-segment value="default" class="eliminar-segment" color="danger">
+                  <ion-segment-button value="eliminar" @click="eliminarHabilidad(index)">
+                    <ion-label color="danger">Eliminar</ion-label>
+                  </ion-segment-button>
+                </ion-segment>
+              </div>
+            </ion-card-header>
+            <ion-card-content>
+              <p><strong>Descripción:</strong> {{ habilidad.descripcion }}</p>
+              <p><strong>Categoría:</strong> {{ habilidad.categoria }}</p>
+              <p><strong>Nivel:</strong> {{ habilidad.nivel }}</p>
+            </ion-card-content>
+          </ion-card>
+        </div>
 
-        <ion-card class="ion-padding-top">
+        <ion-card class="agregar">
           <ion-card-header>
-            <ion-card-title>Agregar nueva habilidad:</ion-card-title>
+            <ion-card-title>Agregar nueva habilidad</ion-card-title>
           </ion-card-header>
           <ion-card-content>
             <form @submit.prevent="agregarHabilidad()">
               <ion-item>
-                <ion-input label="Nombre de habilidad" label-placement="floating"
-                  v-model="nuevaHabilidad.nombreHabilidad" required></ion-input>
-              </ion-item>
-
-              <ion-item>
-                <ion-input label="Descripción" label-placement="floating" v-model="nuevaHabilidad.descripcion"
-                  required></ion-input>
-              </ion-item>
-
-              <ion-item>
-                <ion-select label="Categoría" label-placement="floating" v-model="nuevaHabilidad.categoria"
-                  interface="popover">
-                  <ion-select-option v-for="categoria in categorias" :key="categoria" :value="categoria">{{ categoria
-                    }}</ion-select-option>
+                <ion-label position="fixed">Nombre:</ion-label>
+                <ion-select v-model="nuevaHabilidad.nombreHabilidad" interface="action-sheet" cancel-text="Cancelar">
+                  <ion-select-option v-for="habilidad in habilidadesPredefinidas" :key="habilidad" :value="habilidad">{{ habilidad }}</ion-select-option>
                 </ion-select>
               </ion-item>
 
               <ion-item>
-                <ion-select label="Tipo de intercambio" label-placement="floating"
-                  v-model="nuevaHabilidad.tipoIntercambio" interface="popover">
-                  <ion-select-option value="aprender">Aprender</ion-select-option>
-                  <ion-select-option value="enseñar">Enseñar</ion-select-option>
+                <ion-label position="fixed">Descripción:</ion-label>
+                <ion-input v-model="nuevaHabilidad.descripcion" required></ion-input>
+              </ion-item>
+
+              <ion-item>
+                <ion-label position="fixed">Categoría:</ion-label>
+                <ion-select v-model="nuevaHabilidad.categoria" interface="alert" cancel-text="Cancelar">
+                  <ion-select-option v-for="categoria in categorias" :key="categoria" :value="categoria">{{ categoria }}</ion-select-option>
+                </ion-select>
+              </ion-item>
+
+              <ion-item>
+                <ion-label position="fixed">Nivel:</ion-label>
+                <ion-select v-model="nuevaHabilidad.nivel" interface="popover">
+                  <ion-select-option value="principiante">Principiante</ion-select-option>
+                  <ion-select-option value="intermedio">Intermedio</ion-select-option>
+                  <ion-select-option value="avanzado">Avanzado</ion-select-option>
                 </ion-select>
               </ion-item>
               <ion-button expand="block" type="submit" color="tertiary">Agregar</ion-button>
@@ -81,32 +92,19 @@
           </ion-card-content>
         </ion-card>
       </div>
+      <div v-if="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
     </ion-content>
   </ion-page>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useRoute } from "vue-router";
-import {
-  IonButton,
-  IonContent,
-  IonHeader,
-  IonInput,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonPage,
-  IonTextarea,
-  IonTitle,
-  IonToolbar,
-  IonSelect,
-  IonSelectOption,
-  IonIcon,
-  IonChip,
-} from "@ionic/vue";
-import axios from "axios";
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonChip, IonLabel, IonButton, IonItem, IonInput, IonSelect, IonSelectOption, IonSegment, IonSegmentButton } from "@ionic/vue";
 import { search } from "ionicons/icons";
+import {useRouter} from "vue-router";
+import axios from "axios";
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = "http://localhost/proyecto_final";
 
@@ -116,32 +114,17 @@ interface UserData {
   correo: string;
   ubicacion: string;
 }
+
 interface Habilidad {
   habilidad_id: number;
   nombreHabilidad: string;
   descripcion: string;
   categoria: string;
-  tipoIntercambio: string;
+  nivel: string;
 }
 
 export default defineComponent({
-  components: {
-    IonButton,
-    IonContent,
-    IonHeader,
-    IonInput,
-    IonItem,
-    IonLabel,
-    IonList,
-    IonPage,
-    IonTextarea,
-    IonTitle,
-    IonToolbar,
-    IonSelect,
-    IonSelectOption,
-    IonChip,
-    IonIcon,
-  },
+  components: { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonChip, IonLabel, IonButton, IonItem, IonInput, IonSelect, IonSelectOption, IonSegment, IonSegmentButton },
   data() {
     return {
       userData: {} as UserData,
@@ -151,21 +134,43 @@ export default defineComponent({
         nombreHabilidad: "",
         descripcion: "",
         categoria: "",
-        tipoIntercambio: "",
+        nivel: ""
       } as Habilidad,
       categorias: [
         "Tecnología y electrónica",
         "Salud y bienestar",
-        "Arte y creatividad",
-        "Educación y aprendizaje",
+        "Artesanía y manualidades",
+        "Música y sonido",
         "Negocios y finanzas",
         "Comunicación y relaciones interpersonales",
         "Hogar y estilo de vida",
         "Deportes y actividad física",
         "Desarrollo personal y bienestar emocional",
         "Idiomas",
+        "Creatividad digital",
+        "Cocina y gastronomía",
+        "Ecología y sostenibilidad"
       ],
       search,
+      errorMessage:"",
+      habilidadesPredefinidas:[
+      "Pintura", "Cocina", "Jardinería", "Costura", "Carpintería", "Programación",
+    "Escritura", "Fotografía", "Dibujo", "Baile", "Idiomas", "Música", "Deporte",
+    "Marketing", "Finanzas", "Arte culinario", "Diseño gráfico", "Maquillaje",
+    "Yoga", "Teatro", "Edición de vídeo", "Canto", "Costura", "Fotografía",
+    "Bricolaje", "Diseño web", "Cine", "Buceo", "Escalada", "Arquitectura",
+    "Astrología", "Cerámica", "Ciberseguridad", "Ciencia", "Cómic",
+    "Confección de ropa", "Contabilidad",
+    "Cuidado de mascotas", "Cultura general", "Decoración de interiores",
+    "Desarrollo de apps", "Economía", "Electricidad", "Emprendimiento", "Entrenamiento personal",
+    "Escultura", "Estadística", "Filosofía",
+    "Geografía", "Gestión de proyectos", "Historia", "Ilustración",
+    "Inversión", "Joyería", "Literatura", "Magia", "Meditación",
+    "Modelado 3D", "Nutrición", "Oratoria",
+    "Paisajismo", "Papiroflexia", "Parkour", "Poesía", "Política",
+    "Primeros auxilios", "Psicología", "Química", "Repostería", "Restauración de muebles",
+    "Robótica", "Terapias alternativas", "Trekking",
+      ]
     };
   },
   mounted() {
@@ -175,30 +180,34 @@ export default defineComponent({
   methods: {
     getUserData() {
       axios
-        .get("http://localhost/proyecto_final/userdata.php")
+        .get("/userdata.php")
         .then((response) => {
           this.userData = response.data.userData;
         })
         .catch((error) => {
           console.error("Error al obtener los datos del usuario:", error);
+          this.errorMessage = "Error al obtener los datos del usuario. Por favor, inténtelo de nuevo más tarde.";
         });
     },
     getUserHabilidades() {
       axios
-        .get("http://localhost/proyecto_final/user_habilidades.php")
+        .get("/user_habilidades.php")
         .then((response) => {
           this.habilidades = response.data.habilidades;
         })
         .catch((error) => {
           console.error("Error al obtener las habilidades del usuario:", error);
+          this.errorMessage = "Error al obtener las habilidades del usuario. Por favor, inténtelo de nuevo más tarde.";
         });
     },
     agregarHabilidad() {
+      if (!this.nuevaHabilidad.nombreHabilidad || !this.nuevaHabilidad.descripcion || !this.nuevaHabilidad.categoria || !this.nuevaHabilidad.nivel) {
+        this.errorMessage = "Por favor, complete todos los campos antes de agregar una nueva habilidad.";
+        return;
+      }
+
       axios
-        .post(
-          "http://localhost/proyecto_final/agregar_habilidad.php",
-          this.nuevaHabilidad
-        )
+        .post("/agregar_habilidad.php", this.nuevaHabilidad)
         .then((response) => {
           if (response.data.success) {
             this.getUserHabilidades();
@@ -207,17 +216,16 @@ export default defineComponent({
               nombreHabilidad: "",
               descripcion: "",
               categoria: "",
-              tipoIntercambio: "",
+              nivel: ""
             };
+            this.errorMessage = "";
           } else {
-            console.error(
-              "Error al agregar la nueva habilidad:",
-              response.data.message
-            );
+            throw new Error(response.data.message || "Error al agregar la nueva habilidad.");
           }
         })
         .catch((error) => {
           console.error("Error al agregar la nueva habilidad:", error);
+          this.errorMessage = "Error al agregar la nueva habilidad. Por favor, inténtelo de nuevo más tarde.";
         });
     },
     eliminarHabilidad(index: number) {
@@ -226,42 +234,34 @@ export default defineComponent({
       this.habilidades.splice(index, 1);
 
       axios
-        .post("http://localhost/proyecto_final/eliminar_habilidad.php", {
-          habilidad_id: habilidadId,
+        .post("/eliminar_habilidad.php", {
+          habilidad_id: habilidadId
         })
         .then((response) => {
           if (response.data.success) {
-            console.log("Habilidad eliminada exitosamente del servidor");
+            console.log("Habilidad eliminada con éxito del servidor");
           } else {
-            console.error(
-              "Error al eliminar la habilidad del servidor:",
-              response.data.message
-            );
+            console.error("Error al eliminar la habilidad del servidor:", response.data.message);
+            this.errorMessage = "Error al eliminar la habilidad. Por favor, inténtelo de nuevo más tarde.";
             this.habilidades.splice(index, 0, habilidadAEliminar);
           }
         })
         .catch((error) => {
           console.error("Error al eliminar la habilidad del servidor:", error);
+          this.errorMessage = "Error al eliminar la habilidad. Por favor, inténtelo de nuevo más tarde.";
           this.habilidades.splice(index, 0, habilidadAEliminar);
         });
     },
-    irABuscarUsuarios() {
-      this.$router.push("/search");
+    irABuscarUsuarios(){
+      this.$router.push("/match");
     },
   },
 });
 </script>
 
 <style scoped>
-.chip-container {
-  position: absolute;
-  top: 60px;
-  right: 20px;
-  z-index: 999;
-}
-
-.search-chip {
-  border: 1px solid #333;
+body {
+  font-family: 'Arial', sans-serif;
 }
 
 .container {
@@ -269,44 +269,61 @@ export default defineComponent({
 }
 
 .user-info ion-card {
-  margin-top: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.user-info ion-card-title {
+  color:cadetblue;
 }
 
-.user-info h3 {
-  font-size: 24px;
-  margin-bottom: 10px;
-  font-weight: bold;
-}
-
-.user-info p {
-  margin-bottom: 5px;
-}
-
-.skill-item {
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
-}
-
-.skill-item ion-label {
-  font-weight: bold;
-}
-
-.skill-item ion-button {
-  --padding-start: 0;
-}
-
-ion-select {
-  width: 100%;
+.chip-container {
+  display: flex;
+  justify-content: flex-end;
+  margin: 30px 20px 0px 0px;
 }
 
 .section-title {
-  margin-top: 40px;
+  margin-top: 50px;
+  margin-bottom: 20px;
   font-weight: bold;
-  color: #665693;
-  text-align: center;
+  color:cornflowerblue;
+  text-align:center;
 }
 
-.search-chip:hover {
-  background-color: #ddd;
+.habilidad-card {
+  margin-bottom: 16px;
+}
+
+.habilidad-card ion-card {
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header-content {
+  display: flex;
+  align-items: center;
+}
+
+.eliminar-segment {
+  --indicator-color: transparent;
+  --color-checked: var(--ion-color-danger);
+  justify-content: flex-end;
+}
+.agregar ion-card-title{
+color:darkcyan;
+padding-top: 10px;
+}
+
+ion-card-title{
+  color:mediumpurple;
+}
+ion-segment-button{
+margin-left: auto;
+}
+
+.error-message {
+  color: red;
+  text-align: center;
+  margin-top: 20px;
 }
 </style>

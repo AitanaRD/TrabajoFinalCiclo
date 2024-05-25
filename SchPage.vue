@@ -91,28 +91,27 @@
         </div>
       </div>
 
-      <!-- Componente Modal para el formulario de solicitud -->
-      <ion-modal :is-open="mostrarModal" @closed="cerrarModal()">
+      <ion-modal :kepp-contents-mounted="true" :is-open="mostrarModal" @closed="cerrarModal()">
         <ion-header>
           <ion-toolbar color="secondary">
             <ion-buttons>
+              <ion-title>Solicitud de Intercambio</ion-title>
               <ion-button @click="cerrarModal()">
                 <ion-icon :icon="close"></ion-icon>
               </ion-button>
-              <ion-title>Solicitud de Intercambio</ion-title>
             </ion-buttons>
           </ion-toolbar>
         </ion-header>
         <ion-content>
-          <ion-item>
-            <ion-label position="stacked">Detalles</ion-label>
-            <ion-textarea v-model="detalles" :rows= 3></ion-textarea>
+          <ion-item style="font-size: medium;">
+            <ion-label position="fixed">Detalles</ion-label>
+            <ion-textarea v-model="detalles" :rows="2"></ion-textarea>
           </ion-item>
           <ion-item>
-            <ion-label position="stacked">Fecha</ion-label>
-            <ion-datetime v-model="fecha" display-format="YYYY-MM-DD" min="2020-01-01" max="2030-12-31"></ion-datetime>
+            <ion-label position="fixed">Fecha</ion-label>
+            <ion-datetime presentation="date" :first-day-of-week="1" v-model="fecha" display-format="YYYY-MM-DD" min="2020-01-01" max="2030-12-31"></ion-datetime>
           </ion-item>
-          <ion-button @click="enviarSolicitud()" expand="block" color="tertiary">Enviar</ion-button>
+          <ion-button @click="enviarSolicitud()" expand="block" color="tertiary" style="font-size: medium;">Enviar</ion-button>
         </ion-content>
       </ion-modal>
     </ion-content>
@@ -139,6 +138,7 @@ import {
   IonModal,
   IonTextarea,
   IonDatetime,
+  IonDatetimeButton,
   IonToolbar
 } from "@ionic/vue";
 import { defineComponent } from "vue";
@@ -194,6 +194,7 @@ export default defineComponent({
     IonModal,
     IonTextarea,
     IonDatetime,
+    IonDatetimeButton,
     IonToolbar
   },
   setup() {

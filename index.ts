@@ -5,6 +5,8 @@ import MainPage from '../views/MainPage.vue';
 import SchPage from '../views/SchPage.vue';
 import SignUpPage from '../views/SignUpPage.vue';
 import Inicio from '../views/Inicio.vue';
+import MatchPage from '../views/MatchPage.vue';
+import EvaluationPage from '@/views/EvaluationPage2.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -36,11 +38,21 @@ const routes: Array<RouteRecordRaw> = [
     name: 'SignUp',
     component: SignUpPage
   },
-]
+  {
+    path: '/match',
+    name: 'Match',
+    component: MatchPage
+  },
+  {
+    path: '/evaluation',
+    name: 'Evaluation',
+    component: EvaluationPage
+  }
+];
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
-})
+});
 
 export default router;

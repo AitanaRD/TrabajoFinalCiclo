@@ -4,7 +4,7 @@
       <ion-toolbar color="secondary">
         <ion-buttons>
           <ion-back-button defaultHref="/home"></ion-back-button>
-          <ion-title size="large">Registro</ion-title>
+          <ion-title>Registro</ion-title>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -31,13 +31,21 @@
           <ion-input label="Ubicación" label-placement="floating" type="text" v-model="txtubi"></ion-input>
         </ion-item>
 
-        <ion-button shape="round" expand="full" href="/home" @click="register">Enviar</ion-button>
+        <ion-button shape="round" expand="full" @click="register">Enviar</ion-button>
+        <div v-if="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
+        <div v-if="successMessage" class="success-message">
+          ¡Registro correcto!
+        </div>
       </div>
     </ion-content>
   </ion-page>
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
+import axios from "axios";
 import {
   IonContent,
   IonHeader,
@@ -49,10 +57,7 @@ import {
   IonButton,
   IonItem,
   IonButtons,
-  IonLabel,
 } from "@ionic/vue";
-import { defineComponent } from "vue";
-import axios from "axios";
 
 export default defineComponent({
   components: {
@@ -64,9 +69,8 @@ export default defineComponent({
     IonBackButton,
     IonInput,
     IonButton,
-    IonButtons,
     IonItem,
-    IonLabel,
+    IonButtons,
   },
   data() {
     return {
@@ -75,56 +79,71 @@ export default defineComponent({
       txtcorreo: "",
       txtpassword: "",
       txtubi: "",
+      errorMessage: "",
+      successMessage: false,
     };
   },
   methods: {
-    register() {
-      if (this.txtnombre === "") {
-        alert("Please input a valid name!");
-      } else if (this.txtedad === "") {
-        alert("Please input a valid age!");
-      } else if (this.txtcorreo === "") {
-        alert("Please input a valid email!");
-      } else if (this.txtpassword === "") {
-        alert("Please input a valid password!");
-      } else if (this.txtubi === "") {
-        alert("Please input a valid location!");
-      } else {
-        axios
-          .post("http://localhost/proyecto_final/signup.php", null, {
-            params: {
-              nombre: this.txtnombre,
-              edad: this.txtedad,
-              correo: this.txtcorreo,
-              contrasena: this.txtpassword,
-              ubicacion: this.txtubi,
-            },
-          })
-          .then((response) => {
-            if (response.data.message === "success") {
-              this.txtnombre = "";
-              this.txtedad = "";
-              this.txtcorreo = "";
-              this.txtpassword = "";
-              this.txtubi = "";
-              alert("¡Registro guardado!");
-            } else {
-              alert("¡Registro no guardado!");
-            }
-          })
-          .catch((error) => {
-            console.error("Error al registrarse:", error);
-            alert("Error inesperado. Inténtelo de nuevo más tarde.");
-          });
+    validateEmail(email: string): boolean {
+      const re = /\S+@\S+\.\S+/;
+      return re.test(email);
+    },
+    async register() {
+      this.errorMessage = "";
+      if (!this.txtnombre || !this.txtedad || !this.txtcorreo || !this.txtpassword || !this.txtubi) {
+        this.errorMessage = "Por favor, rellene todos los campos.";
+        return;
+      }
+      if (!this.validateEmail(this.txtcorreo)) {
+        this.errorMessage = "Por favor, ingrese un correo electrónico válido.";
+        return;
+      }
+
+      try {
+        const response = await axios.post("http://localhost/proyecto_final/signup.php", {
+          nombre: this.txtnombre,
+          edad: this.txtedad,
+          correo: this.txtcorreo,
+          contrasena: this.txtpassword,
+          ubicacion: this.txtubi,
+        });
+
+        if (response.data.message === "success") {
+          this.txtnombre = "";
+          this.txtedad = "";
+          this.txtcorreo = "";
+          this.txtpassword = "";
+          this.txtubi = "";
+          this.errorMessage = "";
+          this.successMessage = true;
+        } else if (response.data.message === "email_exists") {
+          this.errorMessage = "El correo electrónico ya existe.";
+        } else {
+          this.errorMessage = "¡Registro no guardado!";
+        }
+      } catch (error) {
+        console.error("Error al registrarse:", error);
+        this.errorMessage = "Error inesperado. Inténtelo de nuevo más tarde.";
       }
     },
   },
 });
 </script>
 
+
 <style scoped>
 #container {
   text-align: center;
   margin-top: 50px;
+}
+
+.error-message {
+  color: red;
+  margin-top: 20px;
+}
+
+.success-message {
+  color: green;
+  margin-top: 20px;
 }
 </style>

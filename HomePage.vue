@@ -27,6 +27,9 @@
         </ion-item>
         <ion-button shape="round" expand="full" @click="login">Iniciar sesión</ion-button>
         <ion-button shape="round" href="/signup" expand="full" color="medium" fill="outline">Registrarse</ion-button>
+        <div v-if="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
       </div>
     </ion-content>
   </ion-page>
@@ -64,6 +67,7 @@ export default defineComponent({
     return {
       txtusername: "",
       txtpassword: "",
+      errorMessage: "",
     };
   },
   setup() {
@@ -74,10 +78,11 @@ export default defineComponent({
   },
   methods: {
     login() {
+      this.errorMessage = "";
       if (this.txtusername == "") {
-        alert("Please input a valid username.");
+        this.errorMessage = "Por favor, ingrese un nombre de usuario válido.";
       } else if (this.txtpassword == "") {
-        alert("Please input a valid password.");
+        this.errorMessage = "Por favor, ingrese una contraseña válida.";
       } else {
         axios
           .post("http://localhost/proyecto_final/login.php", null, {
@@ -90,13 +95,12 @@ export default defineComponent({
             if (response.data.message == "success") {
               this.$router.push("/main");
             } else {
-              alert("¡Usuario o contraseña inválidos!");
+              this.errorMessage = "¡Usuario o contraseña inválidos!";
             }
           })
           .catch((error) => {
-            alert(
-              error.message || "Error inseperado. Inténtelo de nuevo más tarde."
-            );
+            this.errorMessage =
+              error.message || "Error inesperado. Inténtelo de nuevo más tarde.";
           });
       }
     },
@@ -130,5 +134,10 @@ export default defineComponent({
 
 #container a {
   text-decoration: none;
+}
+
+.error-message {
+  color: red;
+  margin-top: 20px;
 }
 </style>
