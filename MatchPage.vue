@@ -2,7 +2,10 @@
   <ion-page>
     <ion-header>
       <ion-toolbar color="secondary">
+        <ion-buttons style="margin-left: 8px;">
+          <ion-back-button defaultHref="/main"></ion-back-button>
         <ion-title size="large">Match de habilidades</ion-title>
+      </ion-buttons>
       </ion-toolbar>
     </ion-header>
     <div class="chip-container">
@@ -12,13 +15,16 @@
       </ion-chip>
     </div>
     <ion-content class="ion-padding">
+      <p v-if="errorMessage" class="ion-text-center error-message">{{ errorMessage }}</p>
+      <p v-if="successMessage" class="ion-text-center success-message">{{ successMessage }}</p>
+      <p v-if="rejectMessage" class="ion-text-center reject-message">{{ rejectMessage }}</p>
       <div v-if="usuarios.length > 0">
         <ion-card v-for="(usuario, index) in usuarios" :key="'usuario-' + index">
-          <ion-card-header>
-            <ion-card-title>{{ usuario.nombre }}</ion-card-title>
-            <ion-card-subtitle>Edad: {{ usuario.edad }}</ion-card-subtitle>
+          <ion-card-header class="card-header">
+            <ion-card-title class="card-title">{{ usuario.nombre }}</ion-card-title>
           </ion-card-header>
           <ion-card-content class="card-content">
+            <p>Edad: {{ usuario.edad }}</p>
             <p>Habilidades: {{ usuario.habilidades.join(', ') }}</p>
             <p>Ubicación: {{ usuario.ubicacion }}</p>
             <p>Correo electrónico: {{ usuario.correo }}</p>
@@ -35,7 +41,6 @@
       </div>
       <div v-else>
         <p class="ion-text-center">Cargando usuarios...</p>
-        <p v-if="errorMessage" class="ion-text-center error-message">{{ errorMessage }}</p>
       </div>
     </ion-content>
   </ion-page>
@@ -44,8 +49,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { IonBackButton, IonTitle, IonToolbar, IonLabel, IonPage, IonItem, IonButton, IonButtons, IonChip, IonHeader, IonContent, IonCard, IonCardHeader, IonCardContent, IonCardTitle } from '@ionic/vue';
 import axios from "axios";
-import { useRouter } from "vue-router";
 import { thumbsDown, thumbsUp, star } from 'ionicons/icons';
 
 interface Usuario {
@@ -57,7 +62,24 @@ interface Usuario {
 }
 
 export default defineComponent({
-  name: "TinderHabilidades",
+  name: "MatchPage",
+  components: {
+    IonBackButton,
+    IonLabel,
+    IonButtons,
+    IonToolbar,
+    IonTitle,
+    IonPage,
+    IonHeader,
+    IonContent,
+    IonCard,
+    IonCardTitle,
+    IonCardContent,
+    IonCardHeader,
+    IonChip,
+    IonButton,
+    IonItem,
+  },
   data() {
     return {
       usuarios: [] as Usuario[],
@@ -66,7 +88,9 @@ export default defineComponent({
       thumbsUp,
       thumbsDown,
       star,
-      errorMessage: ''
+      errorMessage: '',
+      successMessage: '',
+      rejectMessage: '',
     };
   },
   mounted() {
@@ -138,6 +162,11 @@ export default defineComponent({
       return Array.from(new Set(habilidadesSeleccionadas));
     },
     rechazarUsuario(index: number): void {
+      const usuarioRechazado = this.usuarios[index];
+      this.rejectMessage = `Ha rechazado a ${usuarioRechazado.nombre}.`;
+      setTimeout(() => {
+        this.rejectMessage = '';
+      }, 3000);
       this.usuarios.splice(index, 1);
     },
     aceptarUsuario(index: number): void {
@@ -151,34 +180,40 @@ export default defineComponent({
       })
         .then((response) => {
           if (response.data.status === 'success') {
-            this.showAlert(`Notificación enviada con éxito a ${usuarioAceptado.nombre}`);
+            this.showAlertSuccess(`Notificación enviada con éxito a ${usuarioAceptado.nombre}`);
           } else {
-            this.showAlert(`Error al enviar la notificación: ${response.data.message}`);
+            this.showAlertError(`Error al enviar la notificación: ${response.data.message}`);
           }
         })
         .catch((error) => {
           console.error('Error al enviar la notificación:', error);
-          this.showAlert('Error al enviar la notificación. Por favor, inténtelo de nuevo más tarde.');
+          this.showAlertError('Error al enviar la notificación. Por favor, inténtelo de nuevo más tarde.');
         });
-
       this.usuarios.splice(index, 1);
-    },
-    showAlert(message: string) {
-      window.alert(message);
     },
     irAValorar() {
       this.$router.push("/evaluation");
+    },
+    showAlertSuccess(message: string) {
+      this.successMessage = message;
+      setTimeout(() => {
+        this.successMessage = '';
+      }, 3000);
+    },
+    showAlertError(message: string) {
+      this.errorMessage = message;
+      setTimeout(() => {
+        this.errorMessage = '';
+      }, 3000);
     },
   }
 });
 </script>
 
-
 <style scoped>
-.card-content {
-  margin-bottom: 20px;
+ion-card{
+  margin-bottom: 30px;
 }
-
 .button-wrapper {
   display: flex;
   justify-content: space-between;
@@ -201,18 +236,34 @@ export default defineComponent({
   color: white;
 }
 
+.success-message {
+  color: green;
+  font-weight: bold;
+}
+
 .error-message {
   color: red;
   font-weight: bold;
 }
 
+.reject-message {
+  color: rgb(255, 115, 0);
+  font-weight: bold;
+}
+
+.card-title {
+  font-weight: bold;
+  color: rgb(14, 101, 183);
+}
+
 .chip-container {
   display: flex;
   justify-content: flex-end;
-  margin: 20px 20px 0px 0px;
+  margin-right: 10px;
+  margin-top: 10px;
 }
 
 .eval-chip {
-  border: 1px solid grey;
+  border: 1px solid rgb(179, 174, 174);
 }
 </style>

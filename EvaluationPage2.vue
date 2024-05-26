@@ -2,15 +2,17 @@
   <ion-page>
     <ion-header>
       <ion-toolbar color="secondary">
+        <ion-buttons style="margin-left: 8px;">
+          <ion-back-button defaultHref="/match"></ion-back-button>
         <ion-title>Valoraciones</ion-title>
+      </ion-buttons>
       </ion-toolbar>
     </ion-header>
     <ion-content>
-      <!-- Lista de valoraciones recibidas -->
-      <ion-list>
-        <ion-list-header style="font-size: 20px;">Valoraciones recibidas</ion-list-header>
+      <ion-list lines="none">
+        <ion-list-header class="list-header">Valoraciones recibidas</ion-list-header>
         <ion-item v-for="review in receivedReviews" :key="review.id">
-          <ion-label>
+          <ion-label class="ion-margin-start">
             <h2>{{ review.usuario }}</h2>
             <div>
               <ion-icon v-for="star in getStarIcons(review.calificacion)" :key="star" :icon="star"
@@ -20,32 +22,30 @@
           </ion-label>
         </ion-item>
       </ion-list>
-
-      <!-- Formulario -->
+      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+      <div v-if="showSuccessMessage" class="success-message">
+        ¡Valoración enviada correctamente!
+      </div>
       <ion-card>
         <ion-card-header>
-          <ion-card-title>Nueva valoración</ion-card-title>
+          <ion-card-title class="header">Enviar una valoración</ion-card-title>
         </ion-card-header>
         <ion-card-content>
           <ion-item>
-            <ion-label style="font-size: 22px;" position="stacked">Calificación (1-5 estrellas)</ion-label>
+            <ion-label class="form-label" position="stacked">Calificación (1-5 estrellas):</ion-label>
             <ion-input v-model="newReview.calificacion" type="number" min="1" max="5"></ion-input>
           </ion-item>
           <ion-item>
-            <ion-label style="font-size: 22px;" position="stacked">Comentario</ion-label>
+            <ion-label class="form-label" position="stacked">Comentario:</ion-label>
             <ion-textarea v-model="newReview.comentario"></ion-textarea>
           </ion-item>
           <ion-item>
-            <ion-label style="font-size: 22px;" position="stacked">Destinatario</ion-label>
+            <ion-label class="form-label" position="stacked">Destinatario:</ion-label>
             <ion-input v-model="newReview.destinatario"></ion-input>
           </ion-item>
-          <ion-button expand="block" @click="submitReview()">Enviar valoración</ion-button>
+          <ion-button expand="block" @click="submitReview()">Enviar</ion-button>
         </ion-card-content>
       </ion-card>
-      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
-      <div v-if="showSuccessMessage" class="success-message">
-        ¡Valoración enviada con éxito!
-      </div>
     </ion-content>
   </ion-page>
 </template>
@@ -69,6 +69,8 @@ import {
   IonTextarea,
   IonToolbar,
   IonPage,
+  IonButtons,
+  IonBackButton
 } from '@ionic/vue';
 import { starOutline, star } from 'ionicons/icons';
 
@@ -101,6 +103,8 @@ export default defineComponent({
     IonCardHeader,
     IonButton,
     IonTextarea,
+    IonButtons,
+    IonBackButton
   },
   data() {
     return {
@@ -182,14 +186,20 @@ export default defineComponent({
           this.errorMessage = '';
           this.newReview.calificacion = 0;
           this.newReview.comentario = '';
+          this.newReview.destinatario = '';
         } else {
           this.errorMessage =
-            'Hubo un problema al enviar la valoración. Por favor, inténtelo de nuevo más tarde.';
+            'Hubo un problema al enviar la valoración. Inténtelo de nuevo más tarde.';
+            this.showSuccessMessage = false;
         }
       } catch (error) {
         this.errorMessage =
-          'Error al enviar la valoración. Por favor, verifique su conexión a Internet e inténtelo de nuevo más tarde.';
+          'Error al enviar la valoración. Verifique su conexión e inténtelo de nuevo.';
+          this.showSuccessMessage = false;
       }
+      setTimeout(() => {
+        this.showSuccessMessage = false;
+      }, 3000);
     },
     getStarIcons(rating: number) {
       const stars = [];
@@ -210,11 +220,30 @@ export default defineComponent({
 .error-message {
   color: red;
   margin-top: 10px;
+  text-align: center;
 }
 
 .success-message {
   color: green;
   margin-top: 10px;
+  text-align: center;
+}
+
+.form-label {
+  font-weight: bold;
+  font-size: 1.3rem;
+}
+
+.header{
+  color: rgb(150, 83, 238);
+}
+
+.list-header{
+  margin-top: 20px;
+  font-size: 20px;
+  color: rgb(98, 26, 190);
+}
+.ion-margin-start{
   text-align: center;
 }
 </style>

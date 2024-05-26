@@ -56,44 +56,47 @@
 
         <ion-card class="agregar">
           <ion-card-header>
+            <div v-if="errorMessage" class="message error-message">
+        {{ errorMessage }}
+      </div>
+      <div v-if="successMessage" class="message success-message">
+        {{ successMessage }}
+      </div>
             <ion-card-title>Agregar nueva habilidad</ion-card-title>
           </ion-card-header>
           <ion-card-content>
             <form @submit.prevent="agregarHabilidad()">
               <ion-item>
                 <ion-label position="fixed">Nombre:</ion-label>
-                <ion-select v-model="nuevaHabilidad.nombreHabilidad" interface="action-sheet" cancel-text="Cancelar">
+                <ion-select placeholder="Seleccione una opción" v-model="nuevaHabilidad.nombreHabilidad" interface="action-sheet" cancel-text="Cancelar">
                   <ion-select-option v-for="habilidad in habilidadesPredefinidas" :key="habilidad" :value="habilidad">{{ habilidad }}</ion-select-option>
                 </ion-select>
               </ion-item>
 
               <ion-item>
                 <ion-label position="fixed">Descripción:</ion-label>
-                <ion-input v-model="nuevaHabilidad.descripcion" required></ion-input>
+                <ion-input placeholder="Breve descripción..." v-model="nuevaHabilidad.descripcion"></ion-input>
               </ion-item>
 
               <ion-item>
                 <ion-label position="fixed">Categoría:</ion-label>
-                <ion-select v-model="nuevaHabilidad.categoria" interface="alert" cancel-text="Cancelar">
+                <ion-select placeholder="Seleccione una opción" v-model="nuevaHabilidad.categoria" interface="alert" cancel-text="Cancelar">
                   <ion-select-option v-for="categoria in categorias" :key="categoria" :value="categoria">{{ categoria }}</ion-select-option>
                 </ion-select>
               </ion-item>
 
               <ion-item>
                 <ion-label position="fixed">Nivel:</ion-label>
-                <ion-select v-model="nuevaHabilidad.nivel" interface="popover">
+                <ion-select placeholder="Seleccione una opción" v-model="nuevaHabilidad.nivel" interface="popover">
                   <ion-select-option value="principiante">Principiante</ion-select-option>
                   <ion-select-option value="intermedio">Intermedio</ion-select-option>
                   <ion-select-option value="avanzado">Avanzado</ion-select-option>
                 </ion-select>
               </ion-item>
-              <ion-button expand="block" type="submit" color="tertiary">Agregar</ion-button>
+              <ion-button expand="block" type="submit" color="primary">Agregar</ion-button>
             </form>
           </ion-card-content>
         </ion-card>
-      </div>
-      <div v-if="errorMessage" class="error-message">
-        {{ errorMessage }}
       </div>
     </ion-content>
   </ion-page>
@@ -125,6 +128,7 @@ interface Habilidad {
 
 export default defineComponent({
   components: { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonChip, IonLabel, IonButton, IonItem, IonInput, IonSelect, IonSelectOption, IonSegment, IonSegmentButton },
+  name:'MainPage',
   data() {
     return {
       userData: {} as UserData,
@@ -153,6 +157,7 @@ export default defineComponent({
       ],
       search,
       errorMessage:"",
+      successMessage:"",
       habilidadesPredefinidas:[
       "Pintura", "Cocina", "Jardinería", "Costura", "Carpintería", "Programación",
     "Escritura", "Fotografía", "Dibujo", "Baile", "Idiomas", "Música", "Deporte",
@@ -186,7 +191,7 @@ export default defineComponent({
         })
         .catch((error) => {
           console.error("Error al obtener los datos del usuario:", error);
-          this.errorMessage = "Error al obtener los datos del usuario. Por favor, inténtelo de nuevo más tarde.";
+          this.errorMessage = "Error al obtener los datos del usuario. Inténtelo de nuevo más tarde.";
         });
     },
     getUserHabilidades() {
@@ -197,12 +202,12 @@ export default defineComponent({
         })
         .catch((error) => {
           console.error("Error al obtener las habilidades del usuario:", error);
-          this.errorMessage = "Error al obtener las habilidades del usuario. Por favor, inténtelo de nuevo más tarde.";
+          this.errorMessage = "Error al obtener las habilidades del usuario. Inténtelo de nuevo más tarde.";
         });
     },
     agregarHabilidad() {
       if (!this.nuevaHabilidad.nombreHabilidad || !this.nuevaHabilidad.descripcion || !this.nuevaHabilidad.categoria || !this.nuevaHabilidad.nivel) {
-        this.errorMessage = "Por favor, complete todos los campos antes de agregar una nueva habilidad.";
+        this.errorMessage = "Por favor, rellene todos los campos.";
         return;
       }
 
@@ -219,13 +224,15 @@ export default defineComponent({
               nivel: ""
             };
             this.errorMessage = "";
+            this.successMessage = "¡Habilidad agregada con éxito!";
+            setTimeout(() => { this.successMessage = "" }, 3000);
           } else {
             throw new Error(response.data.message || "Error al agregar la nueva habilidad.");
           }
         })
         .catch((error) => {
           console.error("Error al agregar la nueva habilidad:", error);
-          this.errorMessage = "Error al agregar la nueva habilidad. Por favor, inténtelo de nuevo más tarde.";
+          this.errorMessage = "Error al agregar la nueva habilidad. Inténtelo de nuevo más tarde.";
         });
     },
     eliminarHabilidad(index: number) {
@@ -240,15 +247,17 @@ export default defineComponent({
         .then((response) => {
           if (response.data.success) {
             console.log("Habilidad eliminada con éxito del servidor");
+            this.successMessage = "¡Habilidad eliminada con éxito!";
+            setTimeout(() => { this.successMessage = "" }, 3000);
           } else {
             console.error("Error al eliminar la habilidad del servidor:", response.data.message);
-            this.errorMessage = "Error al eliminar la habilidad. Por favor, inténtelo de nuevo más tarde.";
+            this.errorMessage = "Error al eliminar la habilidad. Inténtelo de nuevo más tarde.";
             this.habilidades.splice(index, 0, habilidadAEliminar);
           }
         })
         .catch((error) => {
           console.error("Error al eliminar la habilidad del servidor:", error);
-          this.errorMessage = "Error al eliminar la habilidad. Por favor, inténtelo de nuevo más tarde.";
+          this.errorMessage = "Error al eliminar la habilidad. Inténtelo de nuevo más tarde.";
           this.habilidades.splice(index, 0, habilidadAEliminar);
         });
     },
@@ -272,8 +281,9 @@ body {
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
 .user-info ion-card-title {
-  color:cadetblue;
+  color: cadetblue;
 }
 
 .chip-container {
@@ -284,10 +294,10 @@ body {
 
 .section-title {
   margin-top: 50px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   font-weight: bold;
-  color:cornflowerblue;
-  text-align:center;
+  color: cornflowerblue;
+  text-align: center;
 }
 
 .habilidad-card {
@@ -304,26 +314,40 @@ body {
   align-items: center;
 }
 
+.habilidad-card ion-card-content {
+  margin-top: -12px;
+}
+
 .eliminar-segment {
   --indicator-color: transparent;
   --color-checked: var(--ion-color-danger);
   justify-content: flex-end;
 }
-.agregar ion-card-title{
-color:darkcyan;
-padding-top: 10px;
+
+.agregar ion-card-title {
+  color: darkcyan;
+  padding-top: 10px;
 }
 
-ion-card-title{
-  color:mediumpurple;
+.card-header-content ion-card-title {
+  color: mediumpurple;
 }
-ion-segment-button{
-margin-left: auto;
+
+ion-segment-button {
+  margin-left: auto;
+}
+
+.message {
+  text-align: center;
+  margin-top: 20px;
+  font-weight: bold;
 }
 
 .error-message {
   color: red;
-  text-align: center;
-  margin-top: 20px;
+}
+
+.success-message {
+  color: green;
 }
 </style>

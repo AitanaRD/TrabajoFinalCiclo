@@ -2,9 +2,9 @@
   <ion-page>
     <ion-header :translucent="true">
       <ion-toolbar color="secondary">
-        <ion-buttons>
+        <ion-buttons style="margin-left: 8px;">
           <ion-back-button defaultHref="/home"></ion-back-button>
-          <ion-title>Registro</ion-title>
+          <ion-title size="large">Registro</ion-title>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -36,7 +36,7 @@
           {{ errorMessage }}
         </div>
         <div v-if="successMessage" class="success-message">
-          ¡Registro correcto!
+          ¡Se ha registrado correctamente!
         </div>
       </div>
     </ion-content>
@@ -95,7 +95,7 @@ export default defineComponent({
         return;
       }
       if (!this.validateEmail(this.txtcorreo)) {
-        this.errorMessage = "Por favor, ingrese un correo electrónico válido.";
+        this.errorMessage = "Introduzca un correo electrónico válido.";
         return;
       }
 
@@ -119,7 +119,7 @@ export default defineComponent({
         } else if (response.data.message === "email_exists") {
           this.errorMessage = "El correo electrónico ya existe.";
         } else {
-          this.errorMessage = "¡Registro no guardado!";
+          this.errorMessage = "¡No se pudo completar el registro!";
         }
       } catch (error) {
         console.error("Error al registrarse:", error);

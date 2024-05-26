@@ -95,7 +95,7 @@ export default defineComponent({
             if (response.data.message == "success") {
               this.$router.push("/main");
             } else {
-              this.errorMessage = "¡Usuario o contraseña inválidos!";
+              this.errorMessage = "¡Usuario o contraseña incorrectos!";
             }
           })
           .catch((error) => {
@@ -126,9 +126,7 @@ export default defineComponent({
 #container p {
   font-size: 16px;
   line-height: 22px;
-
   color: #8c8c8c;
-
   margin: 0;
 }
 
