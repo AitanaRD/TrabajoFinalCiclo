@@ -2,11 +2,10 @@ import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
 import HomePage from '../views/HomePage.vue';
 import MainPage from '../views/MainPage.vue';
-import SchPage from '../views/SchPage.vue';
 import SignUpPage from '../views/SignUpPage.vue';
 import Inicio from '../views/Inicio.vue';
 import MatchPage from '../views/MatchPage.vue';
-import EvaluationPage from '@/views/EvaluationPage2.vue';
+import EvaluationPage from '../views/EvaluationPage2.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -27,11 +26,6 @@ const routes: Array<RouteRecordRaw> = [
     path: '/main',
     name: 'Main',
     component: MainPage
-  },
-  {
-    path: '/search',
-    name: 'Search',
-    component: SchPage
   },
   {
     path: '/signup',

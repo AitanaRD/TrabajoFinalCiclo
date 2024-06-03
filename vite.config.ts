@@ -11,11 +11,18 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(__dirname, 'src'),
     },
   },
-  test: {
-    globals: true,
-    environment: 'jsdom'
+  build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html')
+      }
+    }
+  },
+  server: {
+    host: '0.0.0.0',
+    port: 8101,
   }
-})
+});

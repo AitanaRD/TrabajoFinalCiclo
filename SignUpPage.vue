@@ -2,7 +2,8 @@
   <ion-page>
     <ion-header :translucent="true">
       <ion-toolbar color="secondary">
-        <ion-buttons style="margin-left: 8px;">
+        <!-- Botón de retroceso -->
+        <ion-buttons style="margin-left: 8px">
           <ion-back-button defaultHref="/home"></ion-back-button>
           <ion-title size="large">Registro</ion-title>
         </ion-buttons>
@@ -11,27 +12,55 @@
 
     <ion-content :fullscreen="true">
       <div id="container">
+        <!-- Formulario de registro -->
         <ion-item>
-          <ion-input label="Nombre" label-placement="floating" type="text" v-model="txtnombre"></ion-input>
+          <ion-input
+            label="Nombre"
+            label-placement="floating"
+            type="text"
+            v-model="txtnombre"
+          ></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-input label="Edad" label-placement="floating" type="number" v-model="txtedad"></ion-input>
+          <ion-input
+            label="Edad"
+            label-placement="floating"
+            type="number"
+            v-model="txtedad"
+          ></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-input label="Correo electrónico" label-placement="floating" type="email" v-model="txtcorreo"></ion-input>
+          <ion-input
+            label="Correo electrónico"
+            label-placement="floating"
+            type="email"
+            v-model="txtcorreo"
+          ></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-input label="Contraseña" label-placement="floating" type="password" v-model="txtpassword"></ion-input>
+          <ion-input
+            label="Contraseña"
+            label-placement="floating"
+            type="password"
+            v-model="txtpassword"
+          ></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-input label="Ubicación" label-placement="floating" type="text" v-model="txtubi"></ion-input>
+          <ion-input
+            label="Ubicación"
+            label-placement="floating"
+            type="text"
+            v-model="txtubi"
+          ></ion-input>
         </ion-item>
 
-        <ion-button shape="round" expand="full" @click="register">Enviar</ion-button>
+        <ion-button shape="round" expand="full" @click="register"
+          >Enviar</ion-button
+        >
         <div v-if="errorMessage" class="error-message">
           {{ errorMessage }}
         </div>
@@ -46,6 +75,8 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import axios from "axios";
+import { Capacitor } from "@capacitor/core";
+import { env } from "@/env";
 import {
   IonContent,
   IonHeader,
@@ -84,31 +115,51 @@ export default defineComponent({
     };
   },
   methods: {
+    // Validar el formato del correo electrónico
     validateEmail(email: string): boolean {
       const re = /\S+@\S+\.\S+/;
       return re.test(email);
     },
+    // Realizar el registro
     async register() {
       this.errorMessage = "";
-      if (!this.txtnombre || !this.txtedad || !this.txtcorreo || !this.txtpassword || !this.txtubi) {
+      // Validación de campos obligatorios
+      if (
+        !this.txtnombre ||
+        !this.txtedad ||
+        !this.txtcorreo ||
+        !this.txtpassword ||
+        !this.txtubi
+      ) {
         this.errorMessage = "Por favor, rellene todos los campos.";
         return;
       }
+      // Validación del formato del correo electrónico
       if (!this.validateEmail(this.txtcorreo)) {
         this.errorMessage = "Introduzca un correo electrónico válido.";
         return;
       }
 
       try {
-        const response = await axios.post("http://localhost/proyecto_final/signup.php", {
-          nombre: this.txtnombre,
-          edad: this.txtedad,
-          correo: this.txtcorreo,
-          contrasena: this.txtpassword,
-          ubicacion: this.txtubi,
-        });
-
+        // Determinar si la aplicación se está ejecutando en Android
+        const isAndroid = Capacitor.isNativePlatform();
+        // Determinar la URL del servidor según la plataforma
+        let serverUrl = isAndroid ? env.VITE_ANDROID_SERVER_URL : env.VITE_WEB_SERVER_URL;
+        serverUrl = serverUrl.replace(/:\d+$/, '');
+        // Realizar solicitud HTTP con la URL del servidor determinada
+        const response = await axios.post(
+          serverUrl + "/proyecto_final/signup.php",
+          {
+            nombre: this.txtnombre,
+            edad: this.txtedad,
+            correo: this.txtcorreo,
+            contrasena: this.txtpassword,
+            ubicacion: this.txtubi,
+          }
+        );
+        // Manejar respuesta
         if (response.data.message === "success") {
+          // Limpiar campos y mostrar mensaje de éxito
           this.txtnombre = "";
           this.txtedad = "";
           this.txtcorreo = "";
@@ -129,7 +180,6 @@ export default defineComponent({
   },
 });
 </script>
-
 
 <style scoped>
 #container {
